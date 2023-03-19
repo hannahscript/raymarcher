@@ -42,9 +42,9 @@ pub struct Sierpinski {
 }
 
 impl SceneObject for Sierpinski {
-    fn get_sdf(&self, mut z1: V3d) -> f64 {
-        const SCALE: f64 = 1.85;
-
+    fn get_sdf(&self, z1: V3d) -> f64 {
+        const SCALE: f64 = 2.0;
+        // const SCALE: f64 = 2.0;
         let mut z = z1;
         let a1 = V3d::new(1., 1., 1.);
         let a2 = V3d::new(-1., -1., 1.);
@@ -54,7 +54,7 @@ impl SceneObject for Sierpinski {
         let mut n = 0;
         let mut dist;
         let mut d;
-        while n < 10 {
+        while n < 20 {
             c = a1;
             dist = length(z - a1);
             d = length(z - a2);
@@ -76,7 +76,7 @@ impl SceneObject for Sierpinski {
             n += 1;
         }
 
-        length(z) * f64::powf(SCALE, -n as f64)
+        length(z) * SCALE.powf(-n as f64)
     }
 
     fn get_color(&self) -> Color {

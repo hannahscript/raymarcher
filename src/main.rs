@@ -40,32 +40,32 @@ impl Default for RayMarcher {
 impl RayMarcher {
     fn march(&self, scene: &Scene, cam: &Camera) -> Image {
         let image_height = (self.image_width as f64 / self.aspect_ratio) as u32;
-        // let distances: Vec<f64> = cam
-        //     .ray_generator(self.image_width, image_height)
-        //     .map(|dir| self.send_ray_dist(cam.center, dir, scene))
-        //     .collect();
-        //
-        // let max_dist = distances
-        //     .iter()
-        //     .max_by(|&a, &b| a.partial_cmp(b).expect("NaN values should not happen"))
-        //     .expect("Empty pixels?");
-        //
-        // let pixels = distances
-        //     .iter()
-        //     .map(|&d| {
-        //         if d < 0.0 {
-        //             (0, 0, 0)
-        //         } else {
-        //             let g = (1.0 - d / max_dist) * 255.0;
-        //             (g as u8, g as u8, g as u8)
-        //         }
-        //     })
-        //     .collect();
-
-        let pixels = cam
+        let distances: Vec<f64> = cam
             .ray_generator(self.image_width, image_height)
-            .map(|dir| self.send_ray(cam.center, dir, scene))
+            .map(|dir| self.send_ray_dist(cam.center, dir, scene))
             .collect();
+
+        let max_dist = distances
+            .iter()
+            .max_by(|&a, &b| a.partial_cmp(b).expect("NaN values should not happen"))
+            .expect("Empty pixels?");
+
+        let pixels = distances
+            .iter()
+            .map(|&d| {
+                if d < 0.0 {
+                    (0, 0, 0)
+                } else {
+                    let g = (1.0 - d / max_dist) * 255.0;
+                    (g as u8, g as u8, g as u8)
+                }
+            })
+            .collect();
+
+        // let pixels = cam
+        //     .ray_generator(self.image_width, image_height)
+        //     .map(|dir| self.send_ray(cam.center, dir, scene))
+        //     .collect();
 
         Image {
             pixels,
@@ -225,7 +225,7 @@ fn render_default_scene() -> Image {
 
     let raymarcher = RayMarcher::default();
     let cam = Camera {
-        center: V3d::new(0., 0., 0.0),
+        center: V3d::new(0., 0., 3.0),
         viewport_height: 2.0,
         viewport_width: 2.0 * 16. / 9., // todo store aspect ratio in one place (cam + raymarcher)
         focal_length: 1.,
