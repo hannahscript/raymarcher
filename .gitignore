@@ -1,0 +1,4 @@
+/target
+/renders/*.ppm
+*.iml
+/.idea
